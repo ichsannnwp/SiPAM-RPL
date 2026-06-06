@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # SiPAM — Sistem PAM Swadaya Masyarakat
 ## Desa Ngasem, Kecamatan Masaran, Kabupaten Sragen
 
@@ -94,3 +95,6 @@ sipam/
 - MariaDB / MySQL
 - Password di-hash menggunakan **bcrypt** (`password_hash` / `password_verify`)
 - Tidak memerlukan library/framework tambahan
+=======
+#SiPAM
+>>>>>>> b0398cc3c4d30168098242d86e46c42a86798f40
