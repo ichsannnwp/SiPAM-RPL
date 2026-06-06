@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 # SiPAM — Sistem PAM Swadaya Masyarakat
 ## Desa Ngasem, Kecamatan Masaran, Kabupaten Sragen
 
