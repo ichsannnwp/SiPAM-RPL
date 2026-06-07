@@ -41,7 +41,40 @@ $inisial = strtoupper(substr($_SESSION['email'], 0, 1));
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <title>Dashboard Admin — SiPAM</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
   <link rel="stylesheet" href="../assets/style.css">
+  <style>
+    body { background: #0f172a; }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 15% 0%, rgba(12,110,242,0.30) 0%, transparent 55%),
+        radial-gradient(ellipse 60% 40% at 85% 10%, rgba(99,102,241,0.20) 0%, transparent 50%);
+      z-index: 0;
+      pointer-events: none;
+    }
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(255,255,255,0.035) 1px, transparent 1px);
+      background-size: 28px 28px;
+      z-index: 0;
+      pointer-events: none;
+    }
+    .app { position: relative; z-index: 1; }
+    .header {
+      background: rgba(0, 65, 194, 0.85) !important;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 2px 20px rgba(0,0,0,0.35) !important;
+    }
+  </style>
 </head>
 <body>
 <div class="app">
@@ -101,8 +134,8 @@ $inisial = strtoupper(substr($_SESSION['email'], 0, 1));
         <svg width="16" height="16" fill="none" stroke="#03543f" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
       </div>
     </a>
-
-    <a href="pelanggan.php" class="list-item">
+  
+    <a href="pelanggan.php" class="list-item"  style="border-left:4px solid #1a56db">
       <div class="list-item-icon blue">
         <svg fill="none" stroke="#1a56db" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
       </div>
@@ -113,7 +146,7 @@ $inisial = strtoupper(substr($_SESSION['email'], 0, 1));
       <div class="list-item-right"><svg width="16" height="16" fill="none" stroke="var(--gray-400)" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
     </a>
 
-    <a href="meteran.php" class="list-item">
+    <a href="meteran.php" class="list-item" style="border-left:4px solid #d97706">
       <div class="list-item-icon orange">
         <svg fill="none" stroke="#d97706" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>
       </div>
@@ -124,7 +157,7 @@ $inisial = strtoupper(substr($_SESSION['email'], 0, 1));
       <div class="list-item-right"><svg width="16" height="16" fill="none" stroke="var(--gray-400)" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
     </a>
 
-    <a href="tagihan.php" class="list-item">
+    <a href="tagihan.php" class="list-item" style="border-left:4px solid #7c3aed">
       <div class="list-item-icon" style="background:#ede9fe">
         <svg fill="none" stroke="#7c3aed" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
       </div>
@@ -135,7 +168,7 @@ $inisial = strtoupper(substr($_SESSION['email'], 0, 1));
       <div class="list-item-right"><svg width="16" height="16" fill="none" stroke="var(--gray-400)" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
     </a>
 
-    <a href="pembayaran.php" class="list-item">
+    <a href="pembayaran.php" class="list-item" style="border-left:4px solid #059669">
       <div class="list-item-icon" style="background:#d1fae5">
         <svg fill="none" stroke="#059669" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
       </div>
@@ -146,7 +179,7 @@ $inisial = strtoupper(substr($_SESSION['email'], 0, 1));
       <div class="list-item-right"><svg width="16" height="16" fill="none" stroke="var(--gray-400)" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
     </a>
 
-    <a href="tunggakan.php" class="list-item">
+    <a href="tunggakan.php" class="list-item" style="border-left:4px solid #ff0000">
       <div class="list-item-icon" style="background:var(--danger-light)">
         <svg fill="none" stroke="var(--danger)" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
       </div>
@@ -157,7 +190,7 @@ $inisial = strtoupper(substr($_SESSION['email'], 0, 1));
       <div class="list-item-right"><svg width="16" height="16" fill="none" stroke="var(--gray-400)" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
     </a>
 
-    <a href="laporan.php" class="list-item">
+    <a href="laporan.php" class="list-item" style="border-left:4px solid #4967f0">
       <div class="list-item-icon" style="background:var(--primary-light)">
         <svg fill="none" stroke="var(--primary)" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
       </div>
