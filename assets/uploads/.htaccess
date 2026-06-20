@@ -1,0 +1,13 @@
+# Mencegah eksekusi PHP/script apapun di folder upload ini.
+# Folder ini hanya untuk menyimpan gambar/PDF bukti transfer dari pelanggan.
+<FilesMatch "\.(php|php3|php4|php5|phtml|pl|py|cgi|sh)$">
+  Order Allow,Deny
+  Deny from all
+</FilesMatch>
+
+# Untuk Apache 2.4+
+<IfModule mod_authz_core.c>
+  <FilesMatch "\.(php|php3|php4|php5|phtml|pl|py|cgi|sh)$">
+    Require all denied
+  </FilesMatch>
+</IfModule>

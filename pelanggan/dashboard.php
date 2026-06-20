@@ -22,9 +22,24 @@ if ($pelanggan) {
     $stmt2->execute([$pid]);
     $tagihan_aktif = $stmt2->fetch();
 
-    $stmt3 = $pdo->prepare("SELECT t.*, pb.tanggal_bayar FROM tagihan t LEFT JOIN pembayaran pb ON t.id=pb.tagihan_id WHERE t.pelanggan_id=? ORDER BY t.periode DESC LIMIT 6");
+    $stmt3 = $pdo->prepare("SELECT t.* FROM tagihan t WHERE t.pelanggan_id=? ORDER BY t.periode DESC LIMIT 6");
     $stmt3->execute([$pid]);
     $riwayat = $stmt3->fetchAll();
+
+    // Ambil pembayaran terverifikasi (untuk tanggal bayar & link kuitansi) per tagihan
+    foreach ($riwayat as &$r) {
+        $pb = $pdo->prepare("SELECT id, tanggal_bayar FROM pembayaran WHERE tagihan_id=? AND status_verifikasi='terverifikasi' ORDER BY id DESC LIMIT 1");
+        $pb->execute([$r['id']]);
+        $pbData = $pb->fetch();
+        $r['pembayaran_id']  = $pbData['id'] ?? null;
+        $r['tanggal_bayar']  = $pbData['tanggal_bayar'] ?? null;
+    }
+    unset($r);
+
+    // Cek apakah ada pengajuan QRIS yang masih menunggu verifikasi
+    $stmt4 = $pdo->prepare("SELECT pb.* FROM pembayaran pb JOIN tagihan t ON pb.tagihan_id=t.id WHERE t.pelanggan_id=? AND pb.status_verifikasi='menunggu' ORDER BY pb.id DESC LIMIT 1");
+    $stmt4->execute([$pid]);
+    $menunggu_verifikasi = $stmt4->fetch();
 }
 ?>
 <!DOCTYPE html>
@@ -75,9 +90,18 @@ if ($pelanggan) {
         </span>
       </div>
       <div style="margin-top:10px;font-size:12px;color:var(--gray-600)">Jatuh tempo: <?= date('d M Y', strtotime($tagihan_aktif['jatuh_tempo'])) ?></div>
-      <div style="margin-top:10px;background:var(--primary-light);color:var(--primary);padding:10px 12px;border-radius:8px;font-size:13px;text-align:center;font-weight:600">
-        Bayar ke bendahara PAM Swadaya
+
+      <?php if ($menunggu_verifikasi && $menunggu_verifikasi['tagihan_id'] == $tagihan_aktif['id']): ?>
+      <div style="margin-top:10px;background:var(--warning-light);color:#92400e;padding:10px 12px;border-radius:8px;font-size:13px;text-align:center;font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="16"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Menunggu verifikasi admin
       </div>
+      <?php else: ?>
+      <a href="bayar.php?tagihan_id=<?= $tagihan_aktif['id'] ?>" style="margin-top:10px;background:var(--primary);color:white;padding:12px;border-radius:8px;font-size:14px;text-align:center;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none">
+        <svg fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24" width="18"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Bayar via QRIS
+      </a>
+      <?php endif; ?>
     </div>
     <?php else: ?>
     <div style="background:var(--success-light);border-radius:16px;padding:16px;margin-bottom:12px;display:flex;gap:12px;align-items:center">
@@ -95,6 +119,8 @@ if ($pelanggan) {
     <div style="text-align:center;color:var(--gray-400);padding:24px 0;font-size:13px">Belum ada riwayat tagihan.</div>
     <?php else: ?>
     <?php foreach ($riwayat as $r): ?>
+    <?php $isLunas = $r['status']==='lunas' && $r['pembayaran_id']; ?>
+    <?php if ($isLunas): ?><a href="kuitansi.php?id=<?= $r['pembayaran_id'] ?>" style="text-decoration:none;color:inherit"><?php endif; ?>
     <div class="list-item">
       <div style="width:38px;height:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;
         background:<?= $r['status']==='lunas'?'var(--success-light)':($r['status']==='tunggakan'?'var(--danger-light)':'var(--warning-light)') ?>;
@@ -112,6 +138,7 @@ if ($pelanggan) {
         <span class="badge <?= $badge ?>" style="margin-top:3px"><?= $label ?></span>
       </div>
     </div>
+    <?php if ($isLunas): ?></a><?php endif; ?>
     <?php endforeach; ?>
     <?php endif; ?>
 
@@ -125,6 +152,10 @@ if ($pelanggan) {
     <a href="dashboard.php" class="nav-item active">
       <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
       Beranda
+    </a>
+    <a href="bayar.php" class="nav-item">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Bayar QRIS
     </a>
     <a href="../auth/logout.php" class="nav-item">
       <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg>

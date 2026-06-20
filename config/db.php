@@ -1,6 +1,6 @@
 <?php
 $host = 'localhost';
-$dbname = 'sipam_db';
+$dbname = 'sipam_db2';
 $username = 'root';
 $password = '';
 

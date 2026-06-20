@@ -1,16 +1,13 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.1
--- https://www.phpmyadmin.net/
+-- SiPAM Database — dengan dukungan QRIS & verifikasi bukti transfer
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 06, 2026 at 11:01 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
-
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -34,10 +31,6 @@ CREATE TABLE `master_tarif` (
   `is_active` tinyint(1) DEFAULT 1,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `master_tarif`
---
 
 INSERT INTO `master_tarif` (`id`, `tarif_per_m3`, `berlaku_mulai`, `is_active`, `created_at`) VALUES
 (1, 2500.00, '2024-01-01', 1, '2026-06-06 07:48:38');
@@ -101,17 +94,38 @@ CREATE TABLE `pelanggan` (
 --
 -- Table structure for table `pembayaran`
 --
+-- Catatan: kolom status_verifikasi ditambahkan untuk mendukung pembayaran QRIS
+-- yang diupload mandiri oleh pelanggan dan perlu diverifikasi admin/bendahara.
+--
 
 CREATE TABLE `pembayaran` (
   `id` int(11) NOT NULL,
   `tagihan_id` int(11) NOT NULL,
   `pelanggan_id` int(11) NOT NULL,
   `jumlah_bayar` decimal(12,2) NOT NULL,
-  `metode` enum('tunai','transfer') DEFAULT 'tunai',
+  `metode` enum('tunai','transfer','qris') DEFAULT 'tunai',
   `bukti_transfer` varchar(255) DEFAULT NULL,
+  `status_verifikasi` enum('menunggu','terverifikasi','ditolak') DEFAULT 'terverifikasi',
+  `catatan_admin` varchar(255) DEFAULT NULL,
   `no_kuitansi` varchar(50) DEFAULT NULL,
   `tanggal_bayar` datetime NOT NULL,
-  `dicatat_oleh` int(11) NOT NULL,
+  `dicatat_oleh` int(11) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `qris_setting`
+--
+-- Menyimpan gambar QRIS yang dikelola admin untuk ditampilkan ke pelanggan.
+--
+
+CREATE TABLE `qris_setting` (
+  `id` int(11) NOT NULL,
+  `nama_qris` varchar(100) DEFAULT 'QRIS PAM Swadaya',
+  `gambar_qris` varchar(255) NOT NULL,
+  `is_active` tinyint(1) DEFAULT 1,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -150,6 +164,7 @@ CREATE TABLE `users` (
 
 --
 -- Dumping data for table `users`
+-- Password default admin: admin123 (hash bcrypt di bawah)
 --
 
 INSERT INTO `users` (`id`, `email`, `password`, `role`, `created_at`) VALUES
@@ -159,30 +174,18 @@ INSERT INTO `users` (`id`, `email`, `password`, `role`, `created_at`) VALUES
 -- Indexes for dumped tables
 --
 
---
--- Indexes for table `master_tarif`
---
 ALTER TABLE `master_tarif`
   ADD PRIMARY KEY (`id`);
 
---
--- Indexes for table `meteran`
---
 ALTER TABLE `meteran`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `unique_meteran` (`pelanggan_id`,`periode`);
 
---
--- Indexes for table `notifikasi`
---
 ALTER TABLE `notifikasi`
   ADD PRIMARY KEY (`id`),
   ADD KEY `pelanggan_id` (`pelanggan_id`),
   ADD KEY `tagihan_id` (`tagihan_id`);
 
---
--- Indexes for table `pelanggan`
---
 ALTER TABLE `pelanggan`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `nik` (`nik`),
@@ -190,27 +193,26 @@ ALTER TABLE `pelanggan`
   ADD UNIQUE KEY `user_id` (`user_id`);
 
 --
--- Indexes for table `pembayaran`
+-- Catatan: indeks tagihan_id pada pembayaran TIDAK dibuat UNIQUE.
+-- Ini sengaja agar pelanggan dapat mengunggah ulang bukti pembayaran QRIS
+-- jika pengajuan sebelumnya ditolak oleh admin (status_verifikasi='ditolak').
 --
 ALTER TABLE `pembayaran`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `tagihan_id` (`tagihan_id`),
   ADD UNIQUE KEY `no_kuitansi` (`no_kuitansi`),
+  ADD KEY `tagihan_id` (`tagihan_id`),
   ADD KEY `pelanggan_id` (`pelanggan_id`),
   ADD KEY `dicatat_oleh` (`dicatat_oleh`);
 
---
--- Indexes for table `tagihan`
---
+ALTER TABLE `qris_setting`
+  ADD PRIMARY KEY (`id`);
+
 ALTER TABLE `tagihan`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `meteran_id` (`meteran_id`),
   ADD UNIQUE KEY `unique_tagihan` (`pelanggan_id`,`periode`),
   ADD KEY `tarif_id` (`tarif_id`);
 
---
--- Indexes for table `users`
---
 ALTER TABLE `users`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `email` (`email`);
@@ -219,45 +221,27 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for dumped tables
 --
 
---
--- AUTO_INCREMENT for table `master_tarif`
---
 ALTER TABLE `master_tarif`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
---
--- AUTO_INCREMENT for table `meteran`
---
 ALTER TABLE `meteran`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
---
--- AUTO_INCREMENT for table `notifikasi`
---
 ALTER TABLE `notifikasi`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
---
--- AUTO_INCREMENT for table `pelanggan`
---
 ALTER TABLE `pelanggan`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
---
--- AUTO_INCREMENT for table `pembayaran`
---
 ALTER TABLE `pembayaran`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
---
--- AUTO_INCREMENT for table `tagihan`
---
+ALTER TABLE `qris_setting`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
 ALTER TABLE `tagihan`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
---
--- AUTO_INCREMENT for table `users`
---
 ALTER TABLE `users`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
@@ -265,40 +249,26 @@ ALTER TABLE `users`
 -- Constraints for dumped tables
 --
 
---
--- Constraints for table `meteran`
---
 ALTER TABLE `meteran`
   ADD CONSTRAINT `meteran_ibfk_1` FOREIGN KEY (`pelanggan_id`) REFERENCES `pelanggan` (`id`);
 
---
--- Constraints for table `notifikasi`
---
 ALTER TABLE `notifikasi`
   ADD CONSTRAINT `notifikasi_ibfk_1` FOREIGN KEY (`pelanggan_id`) REFERENCES `pelanggan` (`id`),
   ADD CONSTRAINT `notifikasi_ibfk_2` FOREIGN KEY (`tagihan_id`) REFERENCES `tagihan` (`id`);
 
---
--- Constraints for table `pelanggan`
---
 ALTER TABLE `pelanggan`
   ADD CONSTRAINT `pelanggan_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
 
---
--- Constraints for table `pembayaran`
---
 ALTER TABLE `pembayaran`
   ADD CONSTRAINT `pembayaran_ibfk_1` FOREIGN KEY (`tagihan_id`) REFERENCES `tagihan` (`id`),
   ADD CONSTRAINT `pembayaran_ibfk_2` FOREIGN KEY (`pelanggan_id`) REFERENCES `pelanggan` (`id`),
   ADD CONSTRAINT `pembayaran_ibfk_3` FOREIGN KEY (`dicatat_oleh`) REFERENCES `users` (`id`);
 
---
--- Constraints for table `tagihan`
---
 ALTER TABLE `tagihan`
   ADD CONSTRAINT `tagihan_ibfk_1` FOREIGN KEY (`pelanggan_id`) REFERENCES `pelanggan` (`id`),
   ADD CONSTRAINT `tagihan_ibfk_2` FOREIGN KEY (`meteran_id`) REFERENCES `meteran` (`id`),
   ADD CONSTRAINT `tagihan_ibfk_3` FOREIGN KEY (`tarif_id`) REFERENCES `master_tarif` (`id`);
+
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

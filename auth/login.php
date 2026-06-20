@@ -54,109 +54,93 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <title>Masuk — SiPAM</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: 'Plus Jakarta Sans', 'Segoe UI', system-ui, sans-serif;
-      background: #0f172a;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(135deg, #1a56db 0%, #1e40af 50%, #1e3a8a 100%);
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 20px;
-      position: relative;
-      overflow: hidden;
-    }
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background:
-        radial-gradient(ellipse 80% 60% at 20% 20%, rgba(12,110,242,0.35) 0%, transparent 60%),
-        radial-gradient(ellipse 60% 50% at 80% 80%, rgba(99,102,241,0.25) 0%, transparent 60%);
-      z-index: 0;
-    }
-    body::after {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image: radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px);
-      background-size: 28px 28px;
-      z-index: 0;
     }
     .card {
-      background: rgba(255,255,255,0.97);
-      border-radius: 24px;
-      padding: 40px 30px 34px;
+      background: white;
+      border-radius: 20px;
+      padding: 36px 28px 32px;
       width: 100%;
       max-width: 380px;
-      box-shadow: 0 24px 80px rgba(0,0,0,0.40), 0 2px 0 rgba(255,255,255,0.1) inset;
-      position: relative;
-      z-index: 1;
-      border: 1px solid rgba(255,255,255,0.15);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.25);
     }
-    .logo { text-align: center; margin-bottom: 30px; }
+    .logo {
+      text-align: center;
+      margin-bottom: 28px;
+    }
     .logo-icon {
-      width: 68px; height: 68px;
-      background: linear-gradient(135deg, #0c6ef2 0%, #1a4fd8 100%);
-      border-radius: 20px;
+      width: 64px; height: 64px;
+      background: linear-gradient(135deg, #1a56db, #1e40af);
+      border-radius: 18px;
       display: flex; align-items: center; justify-content: center;
-      margin: 0 auto 16px;
-      box-shadow: 0 12px 28px rgba(12,110,242,0.45), 0 2px 4px rgba(12,110,242,0.2);
+      margin: 0 auto 14px;
+      box-shadow: 0 8px 20px rgba(26,86,219,0.35);
     }
     .logo-icon svg { width: 34px; height: 34px; }
-    .logo h1 { font-size: 24px; font-weight: 800; color: #0f172a; letter-spacing: -0.5px; }
-    .logo p { font-size: 13px; color: #64748b; margin-top: 5px; font-weight: 500; }
-    .logo p:last-child { font-size: 11.5px; color: #94a3b8; margin-top: 2px; }
+    .logo h1 { font-size: 22px; font-weight: 800; color: #1f2937; }
+    .logo p { font-size: 13px; color: #6b7280; margin-top: 4px; }
     .form-group { margin-bottom: 16px; }
-    .form-group label { display: block; font-size: 12.5px; font-weight: 700; color: #334155; margin-bottom: 6px; letter-spacing: 0.1px; }
+    .form-group label { display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px; }
     .form-control {
       width: 100%;
       padding: 12px 14px;
-      border: 1.5px solid #e2e8f0;
-      border-radius: 11px;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 10px;
       font-size: 14px;
-      color: #1e293b;
-      background: #f8fafc;
-      transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+      color: #1f2937;
+      background: #f9fafb;
+      transition: border-color 0.2s, background 0.2s;
       outline: none;
-      font-family: inherit;
-      font-weight: 500;
     }
-    .form-control:focus { border-color: #0c6ef2; background: white; box-shadow: 0 0 0 3px rgba(12,110,242,0.12); }
+    .form-control:focus { border-color: #1a56db; background: white; }
     .btn-login {
       width: 100%;
       padding: 14px;
-      background: linear-gradient(135deg, #0c6ef2, #1a4fd8);
+      background: linear-gradient(135deg, #1a56db, #1e40af);
       color: white;
       border: none;
-      border-radius: 13px;
+      border-radius: 12px;
       font-size: 15px;
       font-weight: 700;
       cursor: pointer;
       margin-top: 6px;
-      transition: opacity 0.2s, transform 0.12s, box-shadow 0.2s;
-      letter-spacing: -0.1px;
-      font-family: inherit;
-      box-shadow: 0 6px 20px rgba(12,110,242,0.35);
+      transition: opacity 0.2s, transform 0.1s;
+      letter-spacing: 0.3px;
     }
-    .btn-login:hover { box-shadow: 0 8px 28px rgba(12,110,242,0.45); }
-    .btn-login:active { transform: scale(0.97); opacity: 0.9; }
+    .btn-login:hover { opacity: 0.92; }
+    .btn-login:active { transform: scale(0.98); }
     .error-box {
       background: #fef2f2;
-      border: 1px solid #fca5a5;
-      color: #991b1b;
+      border: 1px solid #fecaca;
+      color: #dc2626;
       padding: 12px 14px;
-      border-radius: 11px;
+      border-radius: 10px;
       font-size: 13px;
-      font-weight: 500;
       margin-bottom: 18px;
       display: flex;
       align-items: flex-start;
       gap: 8px;
     }
-    .footer-note { text-align: center; margin-top: 22px; font-size: 11.5px; color: #94a3b8; line-height: 1.7; font-weight: 500; }
-    .divider { border: none; border-top: 1px solid #f1f5f9; margin: 24px 0 20px; }
+    .footer-note {
+      text-align: center;
+      margin-top: 22px;
+      font-size: 11px;
+      color: #9ca3af;
+      line-height: 1.6;
+    }
+    .divider {
+      border: none;
+      border-top: 1px solid #f3f4f6;
+      margin: 24px 0 20px;
+    }
   </style>
 </head>
 <body>

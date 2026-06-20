@@ -22,6 +22,9 @@ $perlu_eskalasi = $pdo->query("
     ) x
 ")->fetchColumn();
 
+// Hitung pembayaran QRIS yang menunggu verifikasi
+$menunggu_verifikasi = $pdo->query("SELECT COUNT(*) FROM pembayaran WHERE status_verifikasi='menunggu'")->fetchColumn();
+
 // Auto-update tunggakan yang sudah lewat jatuh tempo
 $pdo->query("UPDATE tagihan SET status='tunggakan' WHERE status='belum_bayar' AND jatuh_tempo < CURDATE()");
 
@@ -41,40 +44,7 @@ $inisial = strtoupper(substr($_SESSION['email'], 0, 1));
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <title>Dashboard Admin — SiPAM</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
   <link rel="stylesheet" href="../assets/style.css">
-  <style>
-    body { background: #0f172a; }
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background:
-        radial-gradient(ellipse 80% 50% at 15% 0%, rgba(12,110,242,0.30) 0%, transparent 55%),
-        radial-gradient(ellipse 60% 40% at 85% 10%, rgba(99,102,241,0.20) 0%, transparent 50%);
-      z-index: 0;
-      pointer-events: none;
-    }
-    body::after {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image: radial-gradient(circle, rgba(255,255,255,0.035) 1px, transparent 1px);
-      background-size: 28px 28px;
-      z-index: 0;
-      pointer-events: none;
-    }
-    .app { position: relative; z-index: 1; }
-    .header {
-      background: rgba(0, 65, 194, 0.85) !important;
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-      box-shadow: 0 2px 20px rgba(0,0,0,0.35) !important;
-    }
-  </style>
 </head>
 <body>
 <div class="app">
@@ -109,6 +79,17 @@ $inisial = strtoupper(substr($_SESSION['email'], 0, 1));
       </div>
     </div>
 
+    <?php if ($menunggu_verifikasi > 0): ?>
+    <a href="verifikasi-pembayaran.php" style="display:flex;align-items:center;gap:10px;background:var(--warning-light);border:1px solid #fcd34d;border-radius:12px;padding:12px 14px;margin-bottom:12px;text-decoration:none">
+      <svg fill="none" stroke="#92400e" stroke-width="2" viewBox="0 0 24 24" width="20" style="flex-shrink:0"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      <div>
+        <div style="font-weight:700;color:#92400e;font-size:13px"><?= $menunggu_verifikasi ?> bukti pembayaran QRIS menunggu</div>
+        <div style="font-size:12px;color:#78350f">Tap untuk verifikasi sekarang</div>
+      </div>
+      <svg width="16" height="16" fill="none" stroke="#92400e" stroke-width="2" viewBox="0 0 24 24" style="margin-left:auto;flex-shrink:0"><path d="M9 18l6-6-6-6"/></svg>
+    </a>
+    <?php endif; ?>
+
     <?php if ($perlu_eskalasi > 0): ?>
     <a href="eskalasi.php" style="display:flex;align-items:center;gap:10px;background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:12px 14px;margin-bottom:12px;text-decoration:none">
       <svg fill="none" stroke="#dc2626" stroke-width="2" viewBox="0 0 24 24" width="20" style="flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
@@ -134,8 +115,8 @@ $inisial = strtoupper(substr($_SESSION['email'], 0, 1));
         <svg width="16" height="16" fill="none" stroke="#03543f" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
       </div>
     </a>
-  
-    <a href="pelanggan.php" class="list-item"  style="border-left:4px solid #1a56db">
+
+    <a href="pelanggan.php" class="list-item">
       <div class="list-item-icon blue">
         <svg fill="none" stroke="#1a56db" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
       </div>
@@ -146,7 +127,7 @@ $inisial = strtoupper(substr($_SESSION['email'], 0, 1));
       <div class="list-item-right"><svg width="16" height="16" fill="none" stroke="var(--gray-400)" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
     </a>
 
-    <a href="meteran.php" class="list-item" style="border-left:4px solid #d97706">
+    <a href="meteran.php" class="list-item">
       <div class="list-item-icon orange">
         <svg fill="none" stroke="#d97706" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>
       </div>
@@ -157,7 +138,7 @@ $inisial = strtoupper(substr($_SESSION['email'], 0, 1));
       <div class="list-item-right"><svg width="16" height="16" fill="none" stroke="var(--gray-400)" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
     </a>
 
-    <a href="tagihan.php" class="list-item" style="border-left:4px solid #7c3aed">
+    <a href="tagihan.php" class="list-item">
       <div class="list-item-icon" style="background:#ede9fe">
         <svg fill="none" stroke="#7c3aed" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
       </div>
@@ -168,7 +149,7 @@ $inisial = strtoupper(substr($_SESSION['email'], 0, 1));
       <div class="list-item-right"><svg width="16" height="16" fill="none" stroke="var(--gray-400)" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
     </a>
 
-    <a href="pembayaran.php" class="list-item" style="border-left:4px solid #059669">
+    <a href="pembayaran.php" class="list-item">
       <div class="list-item-icon" style="background:#d1fae5">
         <svg fill="none" stroke="#059669" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
       </div>
@@ -179,7 +160,29 @@ $inisial = strtoupper(substr($_SESSION['email'], 0, 1));
       <div class="list-item-right"><svg width="16" height="16" fill="none" stroke="var(--gray-400)" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
     </a>
 
-    <a href="tunggakan.php" class="list-item" style="border-left:4px solid #ff0000">
+    <a href="verifikasi-pembayaran.php" class="list-item">
+      <div class="list-item-icon" style="background:var(--warning-light)">
+        <svg fill="none" stroke="var(--warning)" stroke-width="2" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+      </div>
+      <div>
+        <div class="list-item-title">Verifikasi Pembayaran QRIS</div>
+        <div class="list-item-sub">Setujui/tolak bukti transfer pelanggan</div>
+      </div>
+      <div class="list-item-right"><svg width="16" height="16" fill="none" stroke="var(--gray-400)" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
+    </a>
+
+    <a href="qris.php" class="list-item">
+      <div class="list-item-icon" style="background:#ede9fe">
+        <svg fill="none" stroke="#7c3aed" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      </div>
+      <div>
+        <div class="list-item-title">Kelola QRIS</div>
+        <div class="list-item-sub">Atur gambar QRIS pembayaran</div>
+      </div>
+      <div class="list-item-right"><svg width="16" height="16" fill="none" stroke="var(--gray-400)" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
+    </a>
+
+    <a href="tunggakan.php" class="list-item">
       <div class="list-item-icon" style="background:var(--danger-light)">
         <svg fill="none" stroke="var(--danger)" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
       </div>
@@ -190,7 +193,7 @@ $inisial = strtoupper(substr($_SESSION['email'], 0, 1));
       <div class="list-item-right"><svg width="16" height="16" fill="none" stroke="var(--gray-400)" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
     </a>
 
-    <a href="laporan.php" class="list-item" style="border-left:4px solid #4967f0">
+    <a href="laporan.php" class="list-item">
       <div class="list-item-icon" style="background:var(--primary-light)">
         <svg fill="none" stroke="var(--primary)" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
       </div>
