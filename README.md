@@ -5,8 +5,8 @@
 
 ## Akses secara online 
 Buka link : **(https://sipam.kesug.com)**</br>
-username(admin) : admin</br>
-password(admin) : admin123
+Email (admin) : admin@sipam.com</br>
+Password (admin) : admin123
 
 ## Cara Deploy (XAMPP / Laragon)
 
